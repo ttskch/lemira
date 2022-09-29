@@ -39,5 +39,30 @@ export const theme = extendTheme({
         },
       },
     },
+    Button: {
+      baseStyle: {
+        borderRadius: '0.3rem',
+        _disabled: {
+          bg: 'gray.400',
+          opacity: 1,
+        },
+        _hover: {
+          opacity: 0.7,
+          _disabled: {
+            bg: 'gray.400',
+            opacity: 1,
+          },
+        },
+      },
+      variants: {
+        primary: {
+          bg: 'blue.500',
+          color: 'white',
+        },
+      },
+      defaultProps: {
+        variant: 'primary',
+      },
+    },
   },
 })
