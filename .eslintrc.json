@@ -1,3 +1,8 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": [
+    // https://github.com/vercel/next.js/blob/canary/packages/eslint-config-next/index.js
+    "next/core-web-vitals",
+    // https://github.com/prettier/eslint-config-prettier/blob/main/index.js
+    "prettier"
+  ]
 }
