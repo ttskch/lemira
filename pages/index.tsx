@@ -39,6 +39,9 @@ type FormSchema = {
   variables: Variable[]
 }
 
+const textToArray = (text: string | undefined) =>
+  text?.split('\n').filter((v: string) => !!v) ?? []
+
 const formSchema = yup
   .object({
     from: yup
@@ -51,10 +54,7 @@ const formSchema = yup
     body: yup.string().required('この項目は必須です。'),
     recipients: yup
       .array()
-      .transform(
-        (value, originalValue) =>
-          originalValue?.split?.('\n').filter((v: string) => !!v) ?? [],
-      )
+      .transform((value, originalValue) => textToArray(originalValue))
       .of(
         yup
           .string()
@@ -63,47 +63,38 @@ const formSchema = yup
           ),
       )
       .min(1, 'この項目は必須です。'),
-    variables: yup
-      .array()
-      .of(
-        yup.object({
-          name: yup.string().required('この項目は必須です。'),
-          values: yup
-            .array()
-            .transform(
-              (value, originalValue) =>
-                originalValue?.split?.('\n').filter((v: string) => !!v) ?? [],
-            )
-            .of(yup.string()),
-        }),
-      )
-      .test('unique', '変数名が重複しています。', (variables) => {
-        const names = variables?.map((v) => v.name).filter((v) => !!v) ?? []
-        return names.length === Array.from(new Set(names)).length
-      })
-      .when(['recipients'], (recipients, schema) =>
-        schema.test(
-          'values-length',
-          'いずれかの変数に対する値の数が宛先の数と一致していません。',
-          (variables: Variable[]) => {
-            const valuesLengths = variables.map((v) => v.values.length)
-            for (const length of valuesLengths) {
-              if (length !== recipients.length) {
-                return false
-              }
-            }
-            return true
-          },
-        ),
-      ),
+    variables: yup.array().of(
+      yup.object({
+        name: yup
+          .string()
+          .required('この項目は必須です。')
+          .test('unique', '変数名が重複しています。', function (self) {
+            const {variables} = this.from?.[1].value ?? []
+            const duplicateNames = variables
+              .map((v: Variable) => v.name)
+              .filter((v: string) => !!v)
+              .filter((v: string, i: number, a: string[]) => a.indexOf(v) !== i)
+            return duplicateNames.indexOf(self) === -1
+          }),
+        values: yup
+          .array()
+          .transform((value, originalValue) =>
+            Array.isArray(originalValue)
+              ? originalValue
+              : textToArray(originalValue),
+          )
+          .of(yup.string())
+          .test('length', '値の数が宛先の数と一致していません。', function (v) {
+            const {recipients} = this.from?.[1].value ?? ''
+            return v?.length === textToArray(recipients).length
+          }),
+      }),
+    ),
   })
   .required()
 
 const Index: NextPage = () => {
   const formMethods = useForm<FormSchema>({
-    defaultValues: {
-      recipients: [],
-    },
     resolver: yupResolver(formSchema),
   })
   const {
@@ -216,11 +207,8 @@ const Index: NextPage = () => {
                       .find((message) => !!message)}
                 </FormErrorMessage>
               </FormControl>
-              <FormControl
-                isInvalid={!!formMethods.formState.errors.variables}
-                mb="1.5rem"
-              >
-                <FormLabel>埋め込み変数</FormLabel>
+              <FormLabel>埋め込み変数</FormLabel>
+              <Box mb="1.5rem">
                 {variables.map((variable, i) => (
                   <Flex
                     mb="0.3rem"
@@ -231,25 +219,49 @@ const Index: NextPage = () => {
                     key={i}
                   >
                     <Box flexGrow={1}>
-                      <InputGroup>
-                        <InputLeftAddon>%</InputLeftAddon>
-                        <Input
-                          type="text"
-                          placeholder="変数名"
-                          {...formMethods.register(`variables.${i}.name`)}
-                        />
-                        <InputRightAddon>%</InputRightAddon>
-                      </InputGroup>
+                      <FormControl
+                        isInvalid={
+                          !!formMethods.formState.errors.variables?.[i]?.name
+                        }
+                      >
+                        <InputGroup>
+                          <InputLeftAddon>%</InputLeftAddon>
+                          <Input
+                            type="text"
+                            placeholder="変数名"
+                            {...formMethods.register(`variables.${i}.name`)}
+                          />
+                          <InputRightAddon>%</InputRightAddon>
+                        </InputGroup>
+                        <FormErrorMessage mt="0.1rem">
+                          {
+                            formMethods.formState.errors.variables?.[i]?.name
+                              ?.message
+                          }
+                        </FormErrorMessage>
+                      </FormControl>
                     </Box>
                     <Box flexGrow={1}>
-                      <Textarea
-                        rows={5}
-                        placeholder={`宛先ごとの値\n...`}
-                        {...formMethods.register(`variables.${i}.values`)}
-                      />
-                      <FormHelperText>
-                        ※改行区切りで宛先と同じ数だけ入力してください。
-                      </FormHelperText>
+                      <FormControl
+                        isInvalid={
+                          !!formMethods.formState.errors.variables?.[i]?.values
+                        }
+                      >
+                        <Textarea
+                          rows={5}
+                          placeholder={`宛先ごとの値\n...`}
+                          {...formMethods.register(`variables.${i}.values`)}
+                        />
+                        <FormHelperText>
+                          ※改行区切りで宛先と同じ数だけ入力してください。
+                        </FormHelperText>
+                        <FormErrorMessage mt="0.1rem">
+                          {
+                            formMethods.formState.errors.variables?.[i]?.values
+                              ?.message
+                          }
+                        </FormErrorMessage>
+                      </FormControl>
                     </Box>
                     <IconButton
                       aria-label="削除"
@@ -272,17 +284,8 @@ const Index: NextPage = () => {
                   icon={<Icon as={BiPlus} />}
                   onClick={() => onAppendVariable('', [])}
                 />
-                <FormErrorMessage mt="0.1rem">
-                  {formMethods.formState.errors.variables?.message ??
-                    formMethods.formState.errors.variables
-                      ?.map?.(
-                        (error) =>
-                          error?.name?.message ?? error?.values?.message,
-                      )
-                      .find((message) => !!message)}
-                </FormErrorMessage>
-              </FormControl>
-              <Flex mt="1rem">
+              </Box>
+              <Flex>
                 <Button
                   type="submit"
                   variant="primary"
