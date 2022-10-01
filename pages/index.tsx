@@ -227,267 +227,255 @@ const Index: NextPage = () => {
         results={results}
       />
 
-      <Box bg="bgGray" h="100%">
-        <NarrowBox py={{base: '1rem', sm: '3rem'}}>
-          <FormProvider {...formMethods}>
-            <form onSubmit={formMethods.handleSubmit(onPreview)}>
-              <Heading as="h2" fontSize="1.5rem" mb="1.5rem">
-                送信に使用するSMTP情報
-              </Heading>
-              <Box mb="2rem">
-                <FormRow
-                  label="ホスト名"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.smtp?.host}
-                  errorMessage={
-                    formMethods.formState.errors.smtp?.host?.message
-                  }
-                >
-                  <Input
-                    type="text"
-                    placeholder="smtp.example.com"
-                    {...formMethods.register('smtp.host')}
-                  />
-                </FormRow>
-                <FormRow
-                  label="ポート番号"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.smtp?.port}
-                  errorMessage={
-                    formMethods.formState.errors.smtp?.port?.message
-                  }
-                >
-                  <Input
-                    type="number"
-                    placeholder="465"
-                    {...formMethods.register('smtp.port')}
-                  />
-                </FormRow>
-                <FormRow
-                  label="ユーザー名"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.smtp?.user}
-                  errorMessage={
-                    formMethods.formState.errors.smtp?.user?.message
-                  }
-                >
-                  <Input
-                    type="text"
-                    placeholder="user@example.com"
-                    {...formMethods.register('smtp.user')}
-                  />
-                </FormRow>
-                <FormRow
-                  label="パスワード"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.smtp?.password}
-                  errorMessage={
-                    formMethods.formState.errors.smtp?.password?.message
-                  }
-                >
-                  <Input
-                    type="password"
-                    {...formMethods.register('smtp.password')}
-                  />
-                </FormRow>
-              </Box>
-              <Heading as="h2" fontSize="1.5rem" mb="1.5rem">
-                メールの内容
-              </Heading>
-              <Box mb="2rem">
-                <FormRow
-                  label="From"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.from}
-                  errorMessage={formMethods.formState.errors.from?.message}
-                >
-                  <Input
-                    type="email"
-                    placeholder="noreply@example.com"
-                    {...formMethods.register('from')}
-                  />
-                </FormRow>
-                <FormRow
-                  label="差出人名"
-                  isInvalid={!!formMethods.formState.errors.fromName}
-                  errorMessage={formMethods.formState.errors.fromName?.message}
-                >
-                  <Input
-                    type="text"
-                    placeholder="山田 太郎"
-                    {...formMethods.register('fromName')}
-                  />
-                </FormRow>
-                <FormRow
-                  label="ReplyTo"
-                  isInvalid={!!formMethods.formState.errors.replyTo}
-                  errorMessage={formMethods.formState.errors.replyTo?.message}
-                >
-                  <Input
-                    type="email"
-                    placeholder="info@example.com"
-                    {...formMethods.register('replyTo')}
-                  />
-                </FormRow>
-                <FormRow
-                  label="件名"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.subject}
-                  errorMessage={formMethods.formState.errors.subject?.message}
-                >
-                  <Input
-                    type="text"
-                    placeholder="◯◯の件について"
-                    {...formMethods.register('subject')}
-                  />
-                  <FormHelperText mt="0.1rem">
-                    ※<Code>%変数名%</Code> で変数を埋め込むことができます。
-                  </FormHelperText>
-                </FormRow>
-                <FormRow
-                  label="本文"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.body}
-                  errorMessage={formMethods.formState.errors.body?.message}
-                >
-                  <Textarea
-                    rows={10}
-                    placeholder={'%name% 様\n\nこんにちは。'}
-                    {...formMethods.register('body')}
-                  />
-                  <FormHelperText mt="0.1rem">
-                    ※<Code>%変数名%</Code> で変数を埋め込むことができます。
-                  </FormHelperText>
-                </FormRow>
-                <FormRow
-                  label="宛先"
-                  isRequired
-                  isInvalid={!!formMethods.formState.errors.recipients}
-                  errorMessage={
-                    formMethods.formState.errors.recipients?.message ??
-                    formMethods.formState.errors.recipients
-                      ?.map?.((error) => error?.message)
-                      .find((message) => !!message)
-                  }
-                >
-                  <Textarea
-                    rows={5}
-                    placeholder={`alice@example.com\nbob@example.com`}
-                    {...formMethods.register('recipients')}
-                  />
-                  <FormHelperText mt="0.1rem">
-                    ※改行区切りで複数入力できます。
-                  </FormHelperText>
-                </FormRow>
-                <ResponsiveRow
-                  left={
-                    <FormLabel m={0} lineHeight="2.5rem">
-                      埋め込み変数
-                    </FormLabel>
-                  }
-                  right={
-                    <Box mb="0.5rem">
-                      {variables.map((variable, i) => (
-                        <Flex
-                          mb="0.3rem"
-                          gap="0.5rem"
-                          p="0.5rem"
-                          borderWidth="1px"
-                          borderRadius="0.375rem"
-                          key={i}
-                        >
-                          <Box flexGrow={1}>
-                            <FormControl
-                              isInvalid={
-                                !!formMethods.formState.errors.variables?.[i]
-                                  ?.name
-                              }
-                            >
-                              <FormLabel>変数名</FormLabel>
-                              <InputGroup>
-                                <InputLeftAddon>%</InputLeftAddon>
-                                <Input
-                                  type="text"
-                                  placeholder="name"
-                                  {...formMethods.register(
-                                    `variables.${i}.name`,
-                                  )}
-                                />
-                                <InputRightAddon>%</InputRightAddon>
-                              </InputGroup>
-                              <FormErrorMessage mt="0.1rem">
-                                {
-                                  formMethods.formState.errors.variables?.[i]
-                                    ?.name?.message
-                                }
-                              </FormErrorMessage>
-                            </FormControl>
-                          </Box>
-                          <Box flexGrow={1}>
-                            <FormControl
-                              isInvalid={
-                                !!formMethods.formState.errors.variables?.[i]
-                                  ?.values
-                              }
-                            >
-                              <FormLabel>宛先ごとの値</FormLabel>
-                              <Textarea
-                                rows={5}
-                                placeholder={`アリス\nボブ`}
-                                {...formMethods.register(
-                                  `variables.${i}.values`,
-                                )}
-                              />
-                              <FormHelperText mt="0.1rem">
-                                ※改行区切りで宛先と同じ数だけ入力してください。
-                              </FormHelperText>
-                              <FormErrorMessage mt="0.1rem">
-                                {
-                                  formMethods.formState.errors.variables?.[i]
-                                    ?.values?.message
-                                }
-                              </FormErrorMessage>
-                            </FormControl>
-                          </Box>
-                          <IconButton
-                            aria-label="削除"
-                            flexShrink={0}
-                            variant="solid"
-                            size="xl"
-                            w="2.5rem"
-                            h="2.5rem"
-                            icon={<Icon as={AiOutlineMinus} />}
-                            onClick={() => onRemoveVariable(i)}
-                          />
-                        </Flex>
-                      ))}
-                      <IconButton
-                        aria-label="追加"
-                        variant="solid"
-                        size="xl"
-                        w="100%"
-                        h="2.5rem"
-                        icon={<Icon as={AiOutlinePlus} />}
-                        onClick={() => onAppendVariable('', [])}
-                      />
-                    </Box>
-                  }
+      <NarrowBox pt="1.5rem" pb={{base: '1rem', sm: '3rem'}}>
+        <FormProvider {...formMethods}>
+          <form onSubmit={formMethods.handleSubmit(onPreview)}>
+            <Heading as="h2" fontSize="1.5rem" mb="1rem">
+              送信に使用するSMTP情報
+            </Heading>
+            <Box mb="1.5rem">
+              <FormRow
+                label="ホスト名"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.smtp?.host}
+                errorMessage={formMethods.formState.errors.smtp?.host?.message}
+              >
+                <Input
+                  type="text"
+                  placeholder="smtp.example.com"
+                  {...formMethods.register('smtp.host')}
                 />
-              </Box>
-              <Flex>
-                <Button
-                  type="submit"
-                  ml="auto"
-                  disabled={formMethods.formState.isSubmitting}
-                >
-                  <Icon as={AiOutlineCheck} mr="0.2rem" />
-                  プレビュー
-                </Button>
-              </Flex>
-            </form>
-          </FormProvider>
-        </NarrowBox>
-      </Box>
+              </FormRow>
+              <FormRow
+                label="ポート番号"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.smtp?.port}
+                errorMessage={formMethods.formState.errors.smtp?.port?.message}
+              >
+                <Input
+                  type="number"
+                  placeholder="465"
+                  {...formMethods.register('smtp.port')}
+                />
+              </FormRow>
+              <FormRow
+                label="ユーザー名"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.smtp?.user}
+                errorMessage={formMethods.formState.errors.smtp?.user?.message}
+              >
+                <Input
+                  type="text"
+                  placeholder="user@example.com"
+                  {...formMethods.register('smtp.user')}
+                />
+              </FormRow>
+              <FormRow
+                label="パスワード"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.smtp?.password}
+                errorMessage={
+                  formMethods.formState.errors.smtp?.password?.message
+                }
+              >
+                <Input
+                  type="password"
+                  {...formMethods.register('smtp.password')}
+                />
+              </FormRow>
+            </Box>
+            <Heading as="h2" fontSize="1.5rem" mb="1rem">
+              メールの内容
+            </Heading>
+            <Box mb="1rem">
+              <FormRow
+                label="From"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.from}
+                errorMessage={formMethods.formState.errors.from?.message}
+              >
+                <Input
+                  type="email"
+                  placeholder="noreply@example.com"
+                  {...formMethods.register('from')}
+                />
+              </FormRow>
+              <FormRow
+                label="差出人名"
+                isInvalid={!!formMethods.formState.errors.fromName}
+                errorMessage={formMethods.formState.errors.fromName?.message}
+              >
+                <Input
+                  type="text"
+                  placeholder="山田 太郎"
+                  {...formMethods.register('fromName')}
+                />
+              </FormRow>
+              <FormRow
+                label="ReplyTo"
+                isInvalid={!!formMethods.formState.errors.replyTo}
+                errorMessage={formMethods.formState.errors.replyTo?.message}
+              >
+                <Input
+                  type="email"
+                  placeholder="info@example.com"
+                  {...formMethods.register('replyTo')}
+                />
+              </FormRow>
+              <FormRow
+                label="件名"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.subject}
+                errorMessage={formMethods.formState.errors.subject?.message}
+              >
+                <Input
+                  type="text"
+                  placeholder="◯◯の件について"
+                  {...formMethods.register('subject')}
+                />
+                <FormHelperText mt="0.1rem">
+                  ※<Code>%変数名%</Code> で変数を埋め込むことができます。
+                </FormHelperText>
+              </FormRow>
+              <FormRow
+                label="本文"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.body}
+                errorMessage={formMethods.formState.errors.body?.message}
+              >
+                <Textarea
+                  rows={10}
+                  placeholder={'%name% 様\n\nこんにちは。'}
+                  {...formMethods.register('body')}
+                />
+                <FormHelperText mt="0.1rem">
+                  ※<Code>%変数名%</Code> で変数を埋め込むことができます。
+                </FormHelperText>
+              </FormRow>
+              <FormRow
+                label="宛先"
+                isRequired
+                isInvalid={!!formMethods.formState.errors.recipients}
+                errorMessage={
+                  formMethods.formState.errors.recipients?.message ??
+                  formMethods.formState.errors.recipients
+                    ?.map?.((error) => error?.message)
+                    .find((message) => !!message)
+                }
+              >
+                <Textarea
+                  rows={5}
+                  placeholder={`alice@example.com\nbob@example.com`}
+                  {...formMethods.register('recipients')}
+                />
+                <FormHelperText mt="0.1rem">
+                  ※改行区切りで複数入力できます。
+                </FormHelperText>
+              </FormRow>
+              <ResponsiveRow
+                left={
+                  <FormLabel m={0} lineHeight="2.5rem">
+                    埋め込み変数
+                  </FormLabel>
+                }
+                right={
+                  <>
+                    {variables.map((variable, i) => (
+                      <Flex
+                        mb="0.3rem"
+                        gap="0.5rem"
+                        p="0.5rem"
+                        borderWidth="1px"
+                        borderRadius="0.375rem"
+                        key={i}
+                      >
+                        <Box flexGrow={1}>
+                          <FormControl
+                            isInvalid={
+                              !!formMethods.formState.errors.variables?.[i]
+                                ?.name
+                            }
+                          >
+                            <FormLabel>変数名</FormLabel>
+                            <InputGroup>
+                              <InputLeftAddon>%</InputLeftAddon>
+                              <Input
+                                type="text"
+                                placeholder="name"
+                                {...formMethods.register(`variables.${i}.name`)}
+                              />
+                              <InputRightAddon>%</InputRightAddon>
+                            </InputGroup>
+                            <FormErrorMessage mt="0.1rem">
+                              {
+                                formMethods.formState.errors.variables?.[i]
+                                  ?.name?.message
+                              }
+                            </FormErrorMessage>
+                          </FormControl>
+                        </Box>
+                        <Box flexGrow={1}>
+                          <FormControl
+                            isInvalid={
+                              !!formMethods.formState.errors.variables?.[i]
+                                ?.values
+                            }
+                          >
+                            <FormLabel>宛先ごとの値</FormLabel>
+                            <Textarea
+                              rows={5}
+                              placeholder={`アリス\nボブ`}
+                              {...formMethods.register(`variables.${i}.values`)}
+                            />
+                            <FormHelperText mt="0.1rem">
+                              ※改行区切りで宛先と同じ数だけ入力してください。
+                            </FormHelperText>
+                            <FormErrorMessage mt="0.1rem">
+                              {
+                                formMethods.formState.errors.variables?.[i]
+                                  ?.values?.message
+                              }
+                            </FormErrorMessage>
+                          </FormControl>
+                        </Box>
+                        <IconButton
+                          aria-label="削除"
+                          flexShrink={0}
+                          variant="solid"
+                          size="xl"
+                          w="2.5rem"
+                          h="2.5rem"
+                          icon={<Icon as={AiOutlineMinus} />}
+                          onClick={() => onRemoveVariable(i)}
+                        />
+                      </Flex>
+                    ))}
+                    <IconButton
+                      aria-label="追加"
+                      variant="solid"
+                      size="xl"
+                      w="100%"
+                      h="2.5rem"
+                      icon={<Icon as={AiOutlinePlus} />}
+                      onClick={() => onAppendVariable('', [])}
+                    />
+                  </>
+                }
+              />
+            </Box>
+            <Flex>
+              <Button
+                type="submit"
+                ml="auto"
+                disabled={formMethods.formState.isSubmitting}
+              >
+                <Icon as={AiOutlineCheck} mr="0.2rem" />
+                プレビュー
+              </Button>
+            </Flex>
+          </form>
+        </FormProvider>
+      </NarrowBox>
     </AppTemplate>
   )
 }
