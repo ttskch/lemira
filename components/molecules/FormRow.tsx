@@ -1,4 +1,4 @@
-import {Box, FormControl, FormErrorMessage, FormLabel} from '@chakra-ui/react'
+import {FormControl, FormErrorMessage, FormLabel} from '@chakra-ui/react'
 import {ResponsiveRow} from '@/components/molecules/ResponsiveRow'
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   errorMessage?: string
   mb?: string | 0
   labelWidth?: string
-} & React.ComponentProps<typeof Box>
+}
 
 export const FormRow: React.FC<Props> = ({
   children,
