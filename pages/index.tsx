@@ -1,8 +1,9 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Code,
-  Divider,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -20,18 +21,19 @@ import {
 } from '@chakra-ui/react'
 import {yupResolver} from '@hookform/resolvers/yup'
 import type {NextPage} from 'next'
-import Head from 'next/head'
 import {useState} from 'react'
 import {FormProvider, useFieldArray, useForm} from 'react-hook-form'
 import {AiOutlineCheck, AiOutlineMinus, AiOutlinePlus} from 'react-icons/ai'
 import * as yup from 'yup'
 import {FormRow} from '@/components/molecules/FormRow'
+import {Head} from '@/components/molecules/Head'
 import {NarrowBox} from '@/components/molecules/NarrowBox'
 import {ResponsiveRow} from '@/components/molecules/ResponsiveRow'
 import {PreviewModal} from '@/components/organisms/PreviewModal'
 import {ProgressModal} from '@/components/organisms/ProgressModal'
 import {ResultModal} from '@/components/organisms/ResultModal'
 import {AppTemplate} from '@/components/templates/AppTemplate'
+import {pagesPath} from '@/lib/$path'
 import {applyVariables, Envelope, Result, Variable} from '@/lib/domain'
 
 type FormSchema = Envelope
@@ -202,10 +204,11 @@ const Index: NextPage = () => {
 
   return (
     <AppTemplate>
-      <Head>
-        <title>Lemira</title>
-        <meta name="description" content="Lemira" />
-      </Head>
+      <Head
+        title="Lemira | シンプルかつ柔軟な一括メール送信ツール"
+        description="Lemira（レミラ）は、あなたのSMTPサーバーを使って一括メールを送信するためのツールです。"
+        path={pagesPath.$url().pathname}
+      />
 
       <PreviewModal
         isOpen={previewModalIsOpen}
@@ -229,6 +232,11 @@ const Index: NextPage = () => {
       />
 
       <NarrowBox pt="1.5rem" pb={{base: '1rem', sm: '3rem'}}>
+        <Alert status="info" bg="blue.50" mb="1.5rem">
+          <AlertIcon />
+          Lemira（レミラ）は、あなたのSMTPサーバーを使って一括メールを送信するためのツールです。SMTP情報は送信時に使用するのみで一切保存していません。
+        </Alert>
+
         <FormProvider {...formMethods}>
           <form onSubmit={formMethods.handleSubmit(onPreview)}>
             <Heading
@@ -246,6 +254,7 @@ const Index: NextPage = () => {
                 errorMessage={formMethods.formState.errors.smtp?.host?.message}
               >
                 <Input
+                  autoFocus
                   type="text"
                   placeholder="smtp.example.com"
                   {...formMethods.register('smtp.host')}
@@ -286,6 +295,7 @@ const Index: NextPage = () => {
               >
                 <Input
                   type="password"
+                  placeholder="••••••••••"
                   {...formMethods.register('smtp.password')}
                 />
               </FormRow>

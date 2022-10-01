@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
       <NarrowBox>
         <Flex h="60px" align="center">
           <NextLink href={pagesPath.$url()} passHref>
-            <Flex as="a" align="center">
+            <Flex as="a" align="center" mr="1rem">
               <Image
                 src={staticPath.logo_192x192_png}
                 w="30px"
@@ -22,6 +22,9 @@ export const Header: React.FC = () => {
               </Text>
             </Flex>
           </NextLink>
+          <Text fontSize="0.9rem" color="gray.600">
+            シンプルかつ柔軟な一括メール送信ツール
+          </Text>
         </Flex>
       </NarrowBox>
     </Box>

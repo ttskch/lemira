@@ -3,7 +3,7 @@ import {staticPath} from '@/lib/$path'
 
 export default function Document() {
   return (
-    <Html lang="ja">
+    <Html lang="ja" prefix="og: http://ogp.me/ns#">
       <Head>
         <link rel="icon" type="image/png" href={staticPath.logo_192x192_png} />
       </Head>
