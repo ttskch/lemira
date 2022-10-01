@@ -5,11 +5,7 @@ export default function Document() {
   return (
     <Html lang="ja">
       <Head>
-        <link
-          rel="icon"
-          type="image/x-icon"
-          href={staticPath.logo_192x192_png}
-        />
+        <link rel="icon" type="image/png" href={staticPath.logo_192x192_png} />
       </Head>
       <body>
         <Main />
