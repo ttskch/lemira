@@ -49,7 +49,7 @@ export const PreviewModal: React.FC<Props> = ({
         <ModalCloseButton />
         <ModalBody pb="1.5rem">
           <Box mb="2rem">
-            <FormRow label="To">
+            <FormRow label="宛先">
               <Select onChange={onSelect} lineHeight="2.5rem">
                 {envelope.recipients.map((recipient, i) => (
                   <option value={i} key={i}>

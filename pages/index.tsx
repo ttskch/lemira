@@ -350,7 +350,7 @@ const Index: NextPage = () => {
                   errorMessage={formMethods.formState.errors.subject?.message}
                 >
                   <Input type="text" {...formMethods.register('subject')} />
-                  <FormHelperText>
+                  <FormHelperText mt="0.1rem">
                     ※<Code>%変数名%</Code> で変数を埋め込むことができます。
                   </FormHelperText>
                 </FormRow>
@@ -361,7 +361,7 @@ const Index: NextPage = () => {
                   errorMessage={formMethods.formState.errors.body?.message}
                 >
                   <Textarea rows={10} {...formMethods.register('body')} />
-                  <FormHelperText>
+                  <FormHelperText mt="0.1rem">
                     ※<Code>%変数名%</Code> で変数を埋め込むことができます。
                   </FormHelperText>
                 </FormRow>
@@ -381,7 +381,7 @@ const Index: NextPage = () => {
                     placeholder={`alice@example.com\nbob@example.com`}
                     {...formMethods.register('recipients')}
                   />
-                  <FormHelperText>
+                  <FormHelperText mt="0.1rem">
                     ※改行区切りで複数入力できます。
                   </FormHelperText>
                 </FormRow>
@@ -442,7 +442,7 @@ const Index: NextPage = () => {
                                   `variables.${i}.values`,
                                 )}
                               />
-                              <FormHelperText>
+                              <FormHelperText mt="0.1rem">
                                 ※改行区切りで宛先と同じ数だけ入力してください。
                               </FormHelperText>
                               <FormErrorMessage mt="0.1rem">
