@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Code,
+  Divider,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -230,10 +231,14 @@ const Index: NextPage = () => {
       <NarrowBox pt="1.5rem" pb={{base: '1rem', sm: '3rem'}}>
         <FormProvider {...formMethods}>
           <form onSubmit={formMethods.handleSubmit(onPreview)}>
-            <Heading as="h2" fontSize="1.5rem" mb="1rem">
+            <Heading
+              as="h2"
+              fontSize="1.5rem"
+              mb={{base: '1rem', sm: '1.5rem'}}
+            >
               送信に使用するSMTP情報
             </Heading>
-            <Box mb="1.5rem">
+            <Box mb={{base: '1rem', sm: '2rem'}}>
               <FormRow
                 label="ホスト名"
                 isRequired
@@ -277,6 +282,7 @@ const Index: NextPage = () => {
                 errorMessage={
                   formMethods.formState.errors.smtp?.password?.message
                 }
+                mb={0}
               >
                 <Input
                   type="password"
@@ -284,10 +290,14 @@ const Index: NextPage = () => {
                 />
               </FormRow>
             </Box>
-            <Heading as="h2" fontSize="1.5rem" mb="1rem">
+            <Heading
+              as="h2"
+              fontSize="1.5rem"
+              mb={{base: '1rem', sm: '1.5rem'}}
+            >
               メールの内容
             </Heading>
-            <Box mb="1rem">
+            <Box mb={{base: '1rem', sm: '2rem'}}>
               <FormRow
                 label="From"
                 isRequired
@@ -386,58 +396,64 @@ const Index: NextPage = () => {
                         gap="0.5rem"
                         p="0.5rem"
                         borderWidth="1px"
-                        borderRadius="0.375rem"
+                        borderRadius="var(--chakra-radii-md)"
                         key={i}
                       >
-                        <Box flexGrow={1}>
-                          <FormControl
-                            isInvalid={
-                              !!formMethods.formState.errors.variables?.[i]
-                                ?.name
-                            }
-                          >
-                            <FormLabel>変数名</FormLabel>
-                            <InputGroup>
-                              <InputLeftAddon>%</InputLeftAddon>
-                              <Input
-                                type="text"
-                                placeholder="name"
-                                {...formMethods.register(`variables.${i}.name`)}
+                        <Flex wrap="wrap" gap="0.5rem" flexGrow={1}>
+                          <Box flexGrow={1}>
+                            <FormControl
+                              isInvalid={
+                                !!formMethods.formState.errors.variables?.[i]
+                                  ?.name
+                              }
+                            >
+                              <FormLabel>変数名</FormLabel>
+                              <InputGroup>
+                                <InputLeftAddon>%</InputLeftAddon>
+                                <Input
+                                  type="text"
+                                  placeholder="name"
+                                  {...formMethods.register(
+                                    `variables.${i}.name`,
+                                  )}
+                                />
+                                <InputRightAddon>%</InputRightAddon>
+                              </InputGroup>
+                              <FormErrorMessage mt="0.1rem">
+                                {
+                                  formMethods.formState.errors.variables?.[i]
+                                    ?.name?.message
+                                }
+                              </FormErrorMessage>
+                            </FormControl>
+                          </Box>
+                          <Box flexGrow={1}>
+                            <FormControl
+                              isInvalid={
+                                !!formMethods.formState.errors.variables?.[i]
+                                  ?.values
+                              }
+                            >
+                              <FormLabel>宛先ごとの値</FormLabel>
+                              <Textarea
+                                rows={5}
+                                placeholder={`アリス\nボブ`}
+                                {...formMethods.register(
+                                  `variables.${i}.values`,
+                                )}
                               />
-                              <InputRightAddon>%</InputRightAddon>
-                            </InputGroup>
-                            <FormErrorMessage mt="0.1rem">
-                              {
-                                formMethods.formState.errors.variables?.[i]
-                                  ?.name?.message
-                              }
-                            </FormErrorMessage>
-                          </FormControl>
-                        </Box>
-                        <Box flexGrow={1}>
-                          <FormControl
-                            isInvalid={
-                              !!formMethods.formState.errors.variables?.[i]
-                                ?.values
-                            }
-                          >
-                            <FormLabel>宛先ごとの値</FormLabel>
-                            <Textarea
-                              rows={5}
-                              placeholder={`アリス\nボブ`}
-                              {...formMethods.register(`variables.${i}.values`)}
-                            />
-                            <FormHelperText mt="0.1rem">
-                              ※改行区切りで宛先と同じ数だけ入力してください。
-                            </FormHelperText>
-                            <FormErrorMessage mt="0.1rem">
-                              {
-                                formMethods.formState.errors.variables?.[i]
-                                  ?.values?.message
-                              }
-                            </FormErrorMessage>
-                          </FormControl>
-                        </Box>
+                              <FormHelperText mt="0.1rem">
+                                ※改行区切りで宛先と同じ数だけ入力してください。
+                              </FormHelperText>
+                              <FormErrorMessage mt="0.1rem">
+                                {
+                                  formMethods.formState.errors.variables?.[i]
+                                    ?.values?.message
+                                }
+                              </FormErrorMessage>
+                            </FormControl>
+                          </Box>{' '}
+                        </Flex>
                         <IconButton
                           aria-label="削除"
                           flexShrink={0}

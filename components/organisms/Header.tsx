@@ -5,7 +5,7 @@ import {pagesPath, staticPath} from '@/lib/$path'
 
 export const Header: React.FC = () => {
   return (
-    <Box as="header" bg="gray.50" position="sticky" top={0} zIndex={100}>
+    <Box as="header" bg="blue.50" position="sticky" top={0} zIndex={100}>
       <NarrowBox>
         <Flex h="60px" align="center">
           <NextLink href={pagesPath.$url()} passHref>

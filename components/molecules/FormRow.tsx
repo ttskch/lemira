@@ -7,7 +7,7 @@ type Props = {
   isRequired?: boolean
   isInvalid?: boolean
   errorMessage?: string
-  mb?: string
+  mb?: string | 0
   labelWidth?: string
 } & React.ComponentProps<typeof Box>
 
@@ -28,7 +28,7 @@ export const FormRow: React.FC<Props> = ({
     >
       <ResponsiveRow
         left={
-          <FormLabel m={0} lineHeight="2.5rem">
+          <FormLabel m={0} lineHeight={{base: '2rem', sm: '2.5rem'}}>
             {label}
           </FormLabel>
         }
