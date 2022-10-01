@@ -31,33 +31,7 @@ import {PreviewModal} from '@/components/organisms/PreviewModal'
 import {ProgressModal} from '@/components/organisms/ProgressModal'
 import {ResultModal} from '@/components/organisms/ResultModal'
 import {AppTemplate} from '@/components/templates/AppTemplate'
-
-type Variable = {
-  name: string
-  values: string[]
-}
-
-export type Envelope = {
-  smtp: {
-    host: string
-    port: number
-    user: string
-    password: string
-  }
-  from: string
-  fromName?: string
-  replyTo?: string
-  subject: string
-  body: string
-  recipients: string[]
-  variables: Variable[]
-}
-
-export type Result = {
-  to: string
-  success: boolean
-  error?: string
-}
+import {applyVariables, Envelope, Result, Variable} from '@/lib/domain'
 
 type FormSchema = Envelope
 
@@ -126,18 +100,6 @@ const formSchema = yup
   })
   .required()
 
-export const applyVariables = (
-  text: string,
-  variables: Variable[],
-  index: number,
-) => {
-  variables.forEach((variable) => {
-    text = text.replaceAll(`%${variable.name}%`, variable.values[index])
-  })
-
-  return text
-}
-
 const Index: NextPage = () => {
   const {
     isOpen: previewModalIsOpen,
@@ -187,7 +149,7 @@ const Index: NextPage = () => {
 
   const onSend = async () => {
     if (!envelope) {
-      return
+      throw 'Envelope is empty.'
     }
 
     previewModalOnClose()
@@ -281,7 +243,11 @@ const Index: NextPage = () => {
                     formMethods.formState.errors.smtp?.host?.message
                   }
                 >
-                  <Input type="text" {...formMethods.register('smtp.host')} />
+                  <Input
+                    type="text"
+                    placeholder="smtp.example.com"
+                    {...formMethods.register('smtp.host')}
+                  />
                 </FormRow>
                 <FormRow
                   label="ポート番号"
@@ -291,7 +257,11 @@ const Index: NextPage = () => {
                     formMethods.formState.errors.smtp?.port?.message
                   }
                 >
-                  <Input type="number" {...formMethods.register('smtp.port')} />
+                  <Input
+                    type="number"
+                    placeholder="465"
+                    {...formMethods.register('smtp.port')}
+                  />
                 </FormRow>
                 <FormRow
                   label="ユーザー名"
@@ -301,7 +271,11 @@ const Index: NextPage = () => {
                     formMethods.formState.errors.smtp?.user?.message
                   }
                 >
-                  <Input type="text" {...formMethods.register('smtp.user')} />
+                  <Input
+                    type="text"
+                    placeholder="user@example.com"
+                    {...formMethods.register('smtp.user')}
+                  />
                 </FormRow>
                 <FormRow
                   label="パスワード"
@@ -327,21 +301,33 @@ const Index: NextPage = () => {
                   isInvalid={!!formMethods.formState.errors.from}
                   errorMessage={formMethods.formState.errors.from?.message}
                 >
-                  <Input type="email" {...formMethods.register('from')} />
+                  <Input
+                    type="email"
+                    placeholder="noreply@example.com"
+                    {...formMethods.register('from')}
+                  />
                 </FormRow>
                 <FormRow
                   label="差出人名"
                   isInvalid={!!formMethods.formState.errors.fromName}
                   errorMessage={formMethods.formState.errors.fromName?.message}
                 >
-                  <Input type="text" {...formMethods.register('fromName')} />
+                  <Input
+                    type="text"
+                    placeholder="山田 太郎"
+                    {...formMethods.register('fromName')}
+                  />
                 </FormRow>
                 <FormRow
                   label="ReplyTo"
                   isInvalid={!!formMethods.formState.errors.replyTo}
                   errorMessage={formMethods.formState.errors.replyTo?.message}
                 >
-                  <Input type="email" {...formMethods.register('replyTo')} />
+                  <Input
+                    type="email"
+                    placeholder="info@example.com"
+                    {...formMethods.register('replyTo')}
+                  />
                 </FormRow>
                 <FormRow
                   label="件名"
@@ -349,7 +335,11 @@ const Index: NextPage = () => {
                   isInvalid={!!formMethods.formState.errors.subject}
                   errorMessage={formMethods.formState.errors.subject?.message}
                 >
-                  <Input type="text" {...formMethods.register('subject')} />
+                  <Input
+                    type="text"
+                    placeholder="◯◯の件について"
+                    {...formMethods.register('subject')}
+                  />
                   <FormHelperText mt="0.1rem">
                     ※<Code>%変数名%</Code> で変数を埋め込むことができます。
                   </FormHelperText>
@@ -360,7 +350,11 @@ const Index: NextPage = () => {
                   isInvalid={!!formMethods.formState.errors.body}
                   errorMessage={formMethods.formState.errors.body?.message}
                 >
-                  <Textarea rows={10} {...formMethods.register('body')} />
+                  <Textarea
+                    rows={10}
+                    placeholder={'%name% 様\n\nこんにちは。'}
+                    {...formMethods.register('body')}
+                  />
                   <FormHelperText mt="0.1rem">
                     ※<Code>%変数名%</Code> で変数を埋め込むことができます。
                   </FormHelperText>
@@ -409,11 +403,12 @@ const Index: NextPage = () => {
                                   ?.name
                               }
                             >
+                              <FormLabel>変数名</FormLabel>
                               <InputGroup>
                                 <InputLeftAddon>%</InputLeftAddon>
                                 <Input
                                   type="text"
-                                  placeholder="変数名"
+                                  placeholder="name"
                                   {...formMethods.register(
                                     `variables.${i}.name`,
                                   )}
@@ -435,9 +430,10 @@ const Index: NextPage = () => {
                                   ?.values
                               }
                             >
+                              <FormLabel>宛先ごとの値</FormLabel>
                               <Textarea
                                 rows={5}
-                                placeholder={`宛先ごとの値\n...`}
+                                placeholder={`アリス\nボブ`}
                                 {...formMethods.register(
                                   `variables.${i}.values`,
                                 )}

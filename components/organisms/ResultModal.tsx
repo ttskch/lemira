@@ -7,19 +7,26 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Table,
   TableContainer,
+  Tag,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
   useToast,
 } from '@chakra-ui/react'
-import {AiFillCheckCircle, AiFillCloseCircle} from 'react-icons/ai'
-import {Result} from '@/pages'
+import {
+  AiFillCheckCircle,
+  AiFillCloseCircle,
+  AiFillInfoCircle,
+} from 'react-icons/ai'
+import {Result} from '@/lib/domain'
 
 type Props = {
   isOpen: boolean
@@ -34,7 +41,7 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
     const text = results
       .map(
         (result) =>
-          `${result.to}\t${result.success ? 'Accepted' : 'Failed'}\t${
+          `${result.to}\t${result.success ? '成功' : '失敗'}\t${
             result.error ?? ''
           }`,
       )
@@ -60,8 +67,8 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
       <ModalContent mx="1rem">
         <ModalHeader>送信結果</ModalHeader>
         <ModalCloseButton />
-        <ModalBody px="1rem" pb="1.5rem">
-          <TableContainer w="calc(100vw - 4rem)" mb="2rem">
+        <ModalBody px={0} pb="1rem">
+          <TableContainer w="calc(100vw - 2rem)" mb="1rem">
             <Table>
               <Thead>
                 <Tr>
@@ -82,7 +89,7 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
                             mb="-0.15em"
                             mr="0.2em"
                           />
-                          Accepted
+                          成功
                         </Box>
                       ) : (
                         <Box color="red.500">
@@ -91,7 +98,7 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
                             mb="-0.15em"
                             mr="0.2em"
                           />
-                          Failed
+                          失敗
                         </Box>
                       )}
                     </Td>
@@ -101,12 +108,28 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
               </Tbody>
             </Table>
           </TableContainer>
-          <Flex>
+          <Flex px="1rem">
             <Button variant="primaryOutline" ml="auto" onClick={onCopy}>
               クリップボードにコピー
             </Button>
           </Flex>
         </ModalBody>
+        <ModalFooter bg="gray.50" borderBottomRadius="var(--chakra-radii-md)">
+          <Flex align="center">
+            <Icon
+              as={AiFillInfoCircle}
+              fontSize="1.5rem"
+              color="orange.300"
+              mr="1rem"
+            />
+            <Text fontSize="0.8rem" color="gray.500">
+              <Tag color="green.500" size="sm" mr="0.1em">
+                成功
+              </Tag>
+              はあくまでSMTPサーバーにAcceptされたという意味であり、宛先にメールが到達したとは限りませんのでご注意ください。実際にメールが到達したかどうかはSMTPサーバーのログなどでご確認ください。
+            </Text>
+          </Flex>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   )

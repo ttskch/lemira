@@ -16,7 +16,7 @@ import {
 import {ChangeEvent, useState} from 'react'
 import {AiOutlineSend} from 'react-icons/ai'
 import {FormRow} from '@/components/molecules/FormRow'
-import {applyVariables, Envelope} from '@/pages'
+import {applyVariables, Envelope} from '@/lib/domain'
 
 type Props = {
   isOpen: boolean
