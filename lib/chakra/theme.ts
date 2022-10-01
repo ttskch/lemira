@@ -39,6 +39,15 @@ export const theme = extendTheme({
         },
       },
     },
+    Modal: {
+      baseStyle: {
+        closeButton: {
+          _focus: {
+            boxShadow: 'none',
+          },
+        },
+      },
+    },
     Button: {
       baseStyle: {
         borderRadius: '0.3rem',
