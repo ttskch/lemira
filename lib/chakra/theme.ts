@@ -59,6 +59,26 @@ export const theme = extendTheme({
           bg: 'blue.500',
           color: 'white',
         },
+        primaryOutline: {
+          bg: 'transparent',
+          borderColor: 'blue.500',
+          borderWidth: '1px',
+          color: 'blue.500',
+          _disabled: {
+            bg: 'transparent',
+            borderColor: 'gray.400',
+            color: 'gray.400',
+            opacity: 0.7,
+          },
+          _hover: {
+            _disabled: {
+              bg: 'transparent',
+              borderColor: 'gray.400',
+              color: 'gray.400',
+              opacity: 0.7,
+            },
+          },
+        },
       },
       defaultProps: {
         variant: 'primary',
