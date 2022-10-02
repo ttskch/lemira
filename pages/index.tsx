@@ -3,7 +3,6 @@ import {
   AlertIcon,
   Box,
   Button,
-  Code,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -35,75 +34,82 @@ import {ResultModal} from '@/components/organisms/ResultModal'
 import {AppTemplate} from '@/components/templates/AppTemplate'
 import {pagesPath} from '@/lib/$path'
 import {applyVariables, Envelope, Result, Variable} from '@/lib/domain'
+import {Translation, useLocale} from '@/lib/i18n'
 
 type FormSchema = Envelope
 
 const textToArray = (text: string | undefined) =>
   text?.split('\n').filter((v: string) => !!v) ?? []
 
-const formSchema = yup
-  .object({
-    smtp: yup.object({
-      host: yup.string().required('この項目は必須です。'),
-      port: yup.number().required('この項目は必須です。'),
-      user: yup.string().required('この項目は必須です。'),
-      password: yup.string().required('この項目は必須です。'),
-    }),
-    from: yup
-      .string()
-      .email('メールアドレスが正しくありません。')
-      .required('この項目は必須です。'),
-    fromName: yup.string(),
-    replyTo: yup.string().email('メールアドレスが正しくありません。'),
-    subject: yup.string().required('この項目は必須です。'),
-    body: yup.string().required('この項目は必須です。'),
-    recipients: yup
-      .array()
-      .transform((value, originalValue) => textToArray(originalValue))
-      .of(
-        yup
-          .string()
-          .email(
-            ({value}) => `"${value}" は正しいメールアドレスではありません。`,
-          ),
-      )
-      .min(1, 'この項目は必須です。'),
-    variables: yup.array().of(
-      yup.object({
-        name: yup
-          .string()
-          .required('この項目は必須です。')
-          .test(
-            'not-include-enclosure',
-            '変数名に "%" を使うことはできません',
-            (v) => v?.indexOf('%') === -1,
-          )
-          .test('unique', '変数名が重複しています。', function (self) {
-            const {variables} = this.from?.[1].value ?? []
-            const duplicateNames = variables
-              .map((v: Variable) => v.name)
-              .filter((v: string) => !!v)
-              .filter((v: string, i: number, a: string[]) => a.indexOf(v) !== i)
-            return duplicateNames.indexOf(self) === -1
-          }),
-        values: yup
-          .array()
-          .transform((value, originalValue) =>
-            Array.isArray(originalValue)
-              ? originalValue
-              : textToArray(originalValue),
-          )
-          .of(yup.string())
-          .test('length', '値の数が宛先の数と一致していません。', function (v) {
-            const {recipients} = this.from?.[1].value ?? ''
-            return v?.length === textToArray(recipients).length
-          }),
+const getFormSchema = (t: Translation) =>
+  yup
+    .object({
+      smtp: yup.object({
+        host: yup.string().required(t.pages.index.validation.required),
+        port: yup
+          .number()
+          .integer(t.pages.index.validation.integer)
+          .required(t.pages.index.validation.required),
+        user: yup.string().required(t.pages.index.validation.required),
+        password: yup.string().required(t.pages.index.validation.required),
       }),
-    ),
-  })
-  .required()
+      from: yup
+        .string()
+        .email(t.pages.index.validation.email)
+        .required(t.pages.index.validation.required),
+      fromName: yup.string(),
+      replyTo: yup.string().email(t.pages.index.validation.email),
+      subject: yup.string().required(t.pages.index.validation.required),
+      body: yup.string().required(t.pages.index.validation.required),
+      recipients: yup
+        .array()
+        .transform((value, originalValue) => textToArray(originalValue))
+        .of(yup.string().email(t.pages.index.validation.oneOfEmails))
+        .min(1, t.pages.index.validation.required),
+      variables: yup.array().of(
+        yup.object({
+          name: yup
+            .string()
+            .required(t.pages.index.validation.required)
+            .test(
+              'not-include-enclosure',
+              t.pages.index.validation.variableName,
+              (v) => v?.indexOf('%') === -1,
+            )
+            .test(
+              'unique',
+              t.pages.index.validation.VariableNameDuplication,
+              function (self) {
+                const {variables} = this.from?.[1].value ?? []
+                const duplicateNames = variables
+                  .map((v: Variable) => v.name)
+                  .filter((v: string) => !!v)
+                  .filter(
+                    (v: string, i: number, a: string[]) => a.indexOf(v) !== i,
+                  )
+                return duplicateNames.indexOf(self) === -1
+              },
+            ),
+          values: yup
+            .array()
+            .transform((value, originalValue) =>
+              Array.isArray(originalValue)
+                ? originalValue
+                : textToArray(originalValue),
+            )
+            .of(yup.string())
+            .test('length', t.pages.index.validation.valuesCount, function (v) {
+              const {recipients} = this.from?.[1].value ?? ''
+              return v?.length === textToArray(recipients).length
+            }),
+        }),
+      ),
+    })
+    .required()
 
 const Index: NextPage = () => {
+  const {t} = useLocale()
+
   const {
     isOpen: previewModalIsOpen,
     onOpen: previewModalOnOpen,
@@ -121,7 +127,7 @@ const Index: NextPage = () => {
   } = useDisclosure()
 
   const formMethods = useForm<FormSchema>({
-    resolver: yupResolver(formSchema),
+    resolver: yupResolver(getFormSchema(t)),
   })
   const {
     fields: variables,
@@ -205,8 +211,8 @@ const Index: NextPage = () => {
   return (
     <AppTemplate>
       <Head
-        title="Lemira | シンプルかつ柔軟な一括メール送信ツール"
-        description="Lemira（レミラ）は、あなたのSMTPサーバーを使って一括メールを送信するためのツールです。"
+        title={t.pages.index.Head.title}
+        description={t.pages.index.Head.description}
         path={pagesPath.$url().pathname}
       />
 
@@ -234,7 +240,11 @@ const Index: NextPage = () => {
       <NarrowBox pt="1.5rem" pb={{base: '1rem', sm: '3rem'}}>
         <Alert status="info" bg="blue.50" mb="1.5rem">
           <AlertIcon />
-          Lemira（レミラ）は、あなたのSMTPサーバーを使って一括メールを送信するためのツールです。SMTP情報は送信時に使用するのみで一切保存していません。
+          {
+            t.pages.index[
+              "You can send broadcast email via your own SMTP server from Lemira. Don't worry, we DO NOT store your credentials."
+            ]
+          }
         </Alert>
 
         <FormProvider {...formMethods}>
@@ -244,11 +254,11 @@ const Index: NextPage = () => {
               fontSize="1.5rem"
               mb={{base: '1rem', sm: '1.5rem'}}
             >
-              送信に使用するSMTP情報
+              {t.pages.index['SMTP Credentials']}
             </Heading>
             <Box mb={{base: '1rem', sm: '2rem'}}>
               <FormRow
-                label="ホスト名"
+                label={t.pages.index.Host}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.smtp?.host}
                 errorMessage={formMethods.formState.errors.smtp?.host?.message}
@@ -261,7 +271,7 @@ const Index: NextPage = () => {
                 />
               </FormRow>
               <FormRow
-                label="ポート番号"
+                label={t.pages.index.Port}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.smtp?.port}
                 errorMessage={formMethods.formState.errors.smtp?.port?.message}
@@ -273,7 +283,7 @@ const Index: NextPage = () => {
                 />
               </FormRow>
               <FormRow
-                label="ユーザー名"
+                label={t.pages.index.User}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.smtp?.user}
                 errorMessage={formMethods.formState.errors.smtp?.user?.message}
@@ -285,7 +295,7 @@ const Index: NextPage = () => {
                 />
               </FormRow>
               <FormRow
-                label="パスワード"
+                label={t.pages.index.Password}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.smtp?.password}
                 errorMessage={
@@ -305,7 +315,7 @@ const Index: NextPage = () => {
               fontSize="1.5rem"
               mb={{base: '1rem', sm: '1.5rem'}}
             >
-              メールの内容
+              {t.pages.index['Email Content']}
             </Heading>
             <Box mb={{base: '1rem', sm: '2rem'}}>
               <FormRow
@@ -321,13 +331,13 @@ const Index: NextPage = () => {
                 />
               </FormRow>
               <FormRow
-                label="差出人名"
+                label={t.pages.index['Sender name']}
                 isInvalid={!!formMethods.formState.errors.fromName}
                 errorMessage={formMethods.formState.errors.fromName?.message}
               >
                 <Input
                   type="text"
-                  placeholder="山田 太郎"
+                  placeholder={t.pages.index['John Smith']}
                   {...formMethods.register('fromName')}
                 />
               </FormRow>
@@ -343,37 +353,41 @@ const Index: NextPage = () => {
                 />
               </FormRow>
               <FormRow
-                label="件名"
+                label={t.pages.index.Subject}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.subject}
                 errorMessage={formMethods.formState.errors.subject?.message}
               >
                 <Input
                   type="text"
-                  placeholder="◯◯の件について"
+                  placeholder={t.pages.index['Good news for you']}
                   {...formMethods.register('subject')}
                 />
                 <FormHelperText mt="0.1rem">
-                  ※<Code>%変数名%</Code> で変数を埋め込むことができます。
+                  {t.pages.index['Can embed variables with %variable%']}
                 </FormHelperText>
               </FormRow>
               <FormRow
-                label="本文"
+                label={t.pages.index['Body']}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.body}
                 errorMessage={formMethods.formState.errors.body?.message}
               >
                 <Textarea
                   rows={10}
-                  placeholder={'%name% 様\n\nこんにちは。'}
+                  placeholder={
+                    t.pages.index[
+                      "Hi %name%,\n\nI'm excited to announce that..."
+                    ]
+                  }
                   {...formMethods.register('body')}
                 />
                 <FormHelperText mt="0.1rem">
-                  ※<Code>%変数名%</Code> で変数を埋め込むことができます。
+                  {t.pages.index['Can embed variables with %variable%']}
                 </FormHelperText>
               </FormRow>
               <FormRow
-                label="宛先"
+                label={t.pages.index.Recipients}
                 isRequired
                 isInvalid={!!formMethods.formState.errors.recipients}
                 errorMessage={
@@ -389,13 +403,17 @@ const Index: NextPage = () => {
                   {...formMethods.register('recipients')}
                 />
                 <FormHelperText mt="0.1rem">
-                  ※改行区切りで複数入力できます。
+                  {
+                    t.pages.index[
+                      'Can enter multiple entries separated by line breaks.'
+                    ]
+                  }
                 </FormHelperText>
               </FormRow>
               <ResponsiveRow
                 left={
                   <FormLabel m={0} lineHeight="2.5rem">
-                    埋め込み変数
+                    {t.pages.index.Variables}
                   </FormLabel>
                 }
                 right={
@@ -417,7 +435,9 @@ const Index: NextPage = () => {
                                   ?.name
                               }
                             >
-                              <FormLabel>変数名</FormLabel>
+                              <FormLabel>
+                                {t.pages.index['Variable name']}
+                              </FormLabel>
                               <InputGroup>
                                 <InputLeftAddon>%</InputLeftAddon>
                                 <Input
@@ -444,16 +464,22 @@ const Index: NextPage = () => {
                                   ?.values
                               }
                             >
-                              <FormLabel>宛先ごとの値</FormLabel>
+                              <FormLabel>
+                                {t.pages.index['Values per recipients']}
+                              </FormLabel>
                               <Textarea
                                 rows={5}
-                                placeholder={`アリス\nボブ`}
+                                placeholder={t.pages.index['Alice\nBob']}
                                 {...formMethods.register(
                                   `variables.${i}.values`,
                                 )}
                               />
                               <FormHelperText mt="0.1rem">
-                                ※改行区切りで宛先と同じ数だけ入力してください。
+                                {
+                                  t.pages.index[
+                                    'Enter the same number of recipients separated by line breaks.'
+                                  ]
+                                }
                               </FormHelperText>
                               <FormErrorMessage mt="0.1rem">
                                 {
@@ -462,10 +488,10 @@ const Index: NextPage = () => {
                                 }
                               </FormErrorMessage>
                             </FormControl>
-                          </Box>{' '}
+                          </Box>
                         </Flex>
                         <IconButton
-                          aria-label="削除"
+                          aria-label={t.pages.index.Remove}
                           flexShrink={0}
                           variant="solid"
                           size="xl"
@@ -477,7 +503,7 @@ const Index: NextPage = () => {
                       </Flex>
                     ))}
                     <IconButton
-                      aria-label="追加"
+                      aria-label={t.pages.index.Add}
                       variant="solid"
                       size="xl"
                       w="100%"
@@ -496,7 +522,7 @@ const Index: NextPage = () => {
                 disabled={formMethods.formState.isSubmitting}
               >
                 <Icon as={AiOutlineCheck} mr="0.2rem" />
-                プレビュー
+                {t.pages.index.Preview}
               </Button>
             </Flex>
           </form>

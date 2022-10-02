@@ -12,7 +12,6 @@ import {
   ModalOverlay,
   Table,
   TableContainer,
-  Tag,
   Tbody,
   Td,
   Text,
@@ -27,6 +26,7 @@ import {
   AiFillInfoCircle,
 } from 'react-icons/ai'
 import {Result} from '@/lib/domain'
+import {useLocale} from '@/lib/i18n'
 
 type Props = {
   isOpen: boolean
@@ -35,20 +35,23 @@ type Props = {
 }
 
 export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
+  const {t} = useLocale()
   const toast = useToast()
 
   const onCopy = async () => {
     const text = results
       .map(
         (result) =>
-          `${result.to}\t${result.success ? '成功' : '失敗'}\t${
-            result.error ?? ''
-          }`,
+          `${result.to}\t${
+            result.success
+              ? t.components.organisms.ResultModal.Success
+              : t.components.organisms.ResultModal.Failed
+          }\t${result.error ?? ''}`,
       )
       .join('\n')
     await navigator.clipboard.writeText(text)
     toast({
-      title: 'クリップボードにコピーしました。',
+      title: t.components.organisms.ResultModal['Copied!'],
       position: 'top',
       status: 'success',
       duration: 2000,
@@ -65,16 +68,16 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
     >
       <ModalOverlay />
       <ModalContent mx="1rem">
-        <ModalHeader>送信結果</ModalHeader>
+        <ModalHeader>{t.components.organisms.ResultModal.Result}</ModalHeader>
         <ModalCloseButton />
         <ModalBody px={0} pb="1rem">
           <TableContainer w="calc(100vw - 2rem)" mb="1rem">
             <Table>
               <Thead>
                 <Tr>
-                  <Th>宛先</Th>
-                  <Th>結果</Th>
-                  <Th>エラー詳細</Th>
+                  <Th>{t.components.organisms.ResultModal.Recipient}</Th>
+                  <Th>{t.components.organisms.ResultModal.Status}</Th>
+                  <Th>{t.components.organisms.ResultModal['Error details']}</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -89,7 +92,7 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
                             mb="-0.15em"
                             mr="0.2em"
                           />
-                          成功
+                          {t.components.organisms.ResultModal.Success}
                         </Box>
                       ) : (
                         <Box color="red.500">
@@ -98,7 +101,7 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
                             mb="-0.15em"
                             mr="0.2em"
                           />
-                          失敗
+                          {t.components.organisms.ResultModal.Failed}
                         </Box>
                       )}
                     </Td>
@@ -110,7 +113,7 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
           </TableContainer>
           <Flex px="1rem">
             <Button variant="primaryOutline" ml="auto" onClick={onCopy}>
-              クリップボードにコピー
+              {t.components.organisms.ResultModal['Copy to clipboard']}
             </Button>
           </Flex>
         </ModalBody>
@@ -123,10 +126,11 @@ export const ResultModal: React.FC<Props> = ({isOpen, onClose, results}) => {
               mr="1rem"
             />
             <Text fontSize="0.8rem" color="gray.500">
-              <Tag color="green.500" size="sm" mr="0.1em">
-                成功
-              </Tag>
-              はあくまでSMTPサーバーにAcceptされたという意味であり、宛先にメールが到達したとは限りませんのでご注意ください。実際にメールが到達したかどうかはSMTPサーバーのログなどでご確認ください。
+              {
+                t.components.organisms.ResultModal[
+                  'Please note that "Success" only means that the email was accepted by the SMTP server, and does not necessarily mean that the email has delivered to the recipient. Please check the SMTP server log and so on to see if the email actually delivered.'
+                ]
+              }
             </Text>
           </Flex>
         </ModalFooter>

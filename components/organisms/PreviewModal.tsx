@@ -17,6 +17,7 @@ import {ChangeEvent, useState} from 'react'
 import {AiOutlineSend} from 'react-icons/ai'
 import {FormRow} from '@/components/molecules/FormRow'
 import {applyVariables, Envelope} from '@/lib/domain'
+import {useLocale} from '@/lib/i18n'
 
 type Props = {
   isOpen: boolean
@@ -31,6 +32,7 @@ export const PreviewModal: React.FC<Props> = ({
   onSend,
   envelope,
 }) => {
+  const {t} = useLocale()
   const [recipientIndex, setRecipientIndex] = useState<number>(0)
 
   if (!envelope) {
@@ -45,11 +47,11 @@ export const PreviewModal: React.FC<Props> = ({
     <Modal isOpen={isOpen} onClose={onClose} size="6xl">
       <ModalOverlay />
       <ModalContent mx="1rem">
-        <ModalHeader>プレビュー</ModalHeader>
+        <ModalHeader>{t.components.organisms.PreviewModal.Preview}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb="1.5rem">
           <Box mb="2rem">
-            <FormRow label="宛先">
+            <FormRow label={t.components.organisms.PreviewModal.To}>
               <Select onChange={onSelect} lineHeight="2.5rem">
                 {envelope.recipients.map((recipient, i) => (
                   <option value={i} key={i}>
@@ -72,7 +74,7 @@ export const PreviewModal: React.FC<Props> = ({
             <FormRow label="ReplyTo">
               <Input variant="filled" value={envelope.replyTo} readOnly />
             </FormRow>
-            <FormRow label="件名">
+            <FormRow label={t.components.organisms.PreviewModal.Subject}>
               <Input
                 variant="filled"
                 value={applyVariables(
@@ -83,7 +85,7 @@ export const PreviewModal: React.FC<Props> = ({
                 readOnly
               />
             </FormRow>
-            <FormRow label="本文">
+            <FormRow label={t.components.organisms.PreviewModal.Body}>
               <Textarea
                 variant="filled"
                 value={applyVariables(
@@ -105,7 +107,9 @@ export const PreviewModal: React.FC<Props> = ({
               }}
             >
               <Icon as={AiOutlineSend} mr="0.2rem" />
-              {envelope.recipients.length.toLocaleString()}通のメールを送信
+              {t.components.organisms.PreviewModal['Send ? emails'](
+                envelope.recipients.length,
+              )}
             </Button>
           </Flex>
         </ModalBody>

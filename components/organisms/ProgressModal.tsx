@@ -8,6 +8,7 @@ import {
   Progress,
   Spinner,
 } from '@chakra-ui/react'
+import {useLocale} from '@/lib/i18n'
 
 type Props = {
   isOpen: boolean
@@ -22,6 +23,8 @@ export const ProgressModal: React.FC<Props> = ({
   total,
   progress,
 }) => {
+  const {t} = useLocale()
+
   return (
     <Modal
       isOpen={isOpen}
@@ -34,7 +37,8 @@ export const ProgressModal: React.FC<Props> = ({
       <ModalOverlay />
       <ModalContent mx="1rem">
         <ModalHeader>
-          送信中 <Spinner h="1rem" w="1rem" speed="1s" />
+          {t.components.organisms.ProgressModal.Sending}{' '}
+          <Spinner h="1rem" w="1rem" speed="1s" />
         </ModalHeader>
         <ModalBody pb="1.5rem">
           <Progress value={(progress / total) * 100} />

@@ -1,7 +1,6 @@
 import NextHead from 'next/head'
 import {staticPath} from '@/lib/$path'
-
-const siteTitle = 'Lemira | シンプルかつ柔軟な一括メール送信ツール'
+import {useLocale} from '@/lib/i18n'
 
 type Props = {
   title: string
@@ -10,6 +9,8 @@ type Props = {
 }
 
 export const Head: React.FC<Props> = ({title, description, path}) => {
+  const {locale, t} = useLocale()
+
   return (
     <NextHead>
       <title>{title}</title>
@@ -21,7 +22,9 @@ export const Head: React.FC<Props> = ({title, description, path}) => {
       <meta property="og:type" content="website" />
       <meta
         property="og:image"
-        content={`${process.env.NEXT_PUBLIC_ORIGIN}${staticPath.ogp_png}`}
+        content={`${process.env.NEXT_PUBLIC_ORIGIN}${
+          locale === 'ja' ? staticPath.ogp_ja_png : staticPath.ogp_en_png
+        }`}
       />
       <meta
         property="og:url"
@@ -33,7 +36,10 @@ export const Head: React.FC<Props> = ({title, description, path}) => {
       />
       {/* optional */}
       <meta property="og:description" content={description ?? title} />
-      <meta property="og:site_name" content={siteTitle} />
+      <meta
+        property="og:site_name"
+        content={t.components.molecules.Head.siteTitle}
+      />
 
       {/* @see https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started */}
       {/* required */}
